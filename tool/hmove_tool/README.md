@@ -1,4 +1,4 @@
-# HMove: An Intelligent Refactoring Tool
+# An HMove-based command-line tool
 
 
 
@@ -40,6 +40,30 @@
 5. Intermediate files generated during program execution will be stored in the src directory for viewing.
 
 ### Use examples
+
+You can determine whether the method being detected needs to be moved by checking the output of the program on the command line.
+
+
+
+If the program finally outputs: 
+
+> ​	We recommend to move the method starting at line 13 in the source class to the target class. 
+
+Explain that our tool suggests that the method be moved and outputs the target class information.
+
+if the program finally outputs: 
+
+> ​	The method starting at line 13 in the source class is not recommended to move to the target class.
+
+This means that our tool doesn't recommend moving the method to the target class.
+
+
+
+A specific example of how to use it is shown below：
+
+​	In this example, we want to check if a method in the source file starting from line 13 needs to be moved to the target file, where the absolute path of the source java file is: `E:camWCWidth.java` and the absolute path of the object file is: `D:ConsoleReader.java`. 
+
+​	Note that the intermediate files output by the program are stored in the `E:hmovesrcoutput_2024-06-14_16-02-26` directory, so that the user can view and understand the detection process at any time.
 
 ![1718354852593](C:\Users\superlit77\AppData\Roaming\Typora\typora-user-images\1718354852593.png)
 
