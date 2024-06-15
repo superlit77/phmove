@@ -5,7 +5,9 @@ This document is included in the 'Three Heads Are Better Than One: Suggesting Mo
 /src: The code files which is involved in the experiment \
 /data_demo: relevant data of the example involved in Section 2 of the paper \
 /RQ3: the questionnaire and case study results \
-/tool:  a Visual Studio Code (VSCode) extension of hmove
+/tool:  a Visual Studio Code (VSCode) extension of hmove \
+
+​	/hmove_tool: an HMove-based command-line tool
 
 # Technique
 ## pre-trained model
