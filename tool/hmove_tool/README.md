@@ -65,8 +65,6 @@ A specific example of how to use it is shown below：
 
 ​	Note that the intermediate files output by the program are stored in the `E:hmovesrcoutput_2024-06-14_16-02-26` directory, so that the user can view and understand the detection process at any time.
 
-![1718354852593](C:\Users\superlit77\AppData\Roaming\Typora\typora-user-images\1718354852593.png)
-
 
 
 ```
