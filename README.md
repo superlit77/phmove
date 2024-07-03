@@ -14,7 +14,7 @@ This document is included in the 'Three Heads Are Better Than One: Suggesting Mo
 CodeBERT GraphCodeBERT CodeGPT CodeT5 CodeT5+ CodeTrans
 
 # Requirement
-## CodeBERT, GraphCodeBERT, CodeGPT, CodeT5, CodeT5+
+## CodeBERT, GraphCodeBERT, CodeGPT, CodeT5, CodeT5+, CodeTrans
 python3(>=3.6) \
 we use python 3.9\
 torch transformers \
