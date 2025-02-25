@@ -6,19 +6,7 @@ import shutil
 import pandas as pd
 import torch
 import numpy as np
-#from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
-#from sklearn import preprocessing
-#from sklearn.decomposition import PCA
-#import matplotlib.pyplot as plt
-#import statsmodels.api as sm
-#import tkinter as tk
-#import json
-
-#bert_model_path = 'E:\\pythonproject\\Pretrain\\codebert-base'  # sys.argv[1]  # CodeBERT预训练模型目录E:\pythonproject\Pretrain
-#gpt_model_path = 'E:\\pythonproject\\Pretrain\\CodeGPT-small-java-adaptedGPT2'
-#det5plus_model_path = 'E:\\pythonproject\\Pretrain\\codet5+'   ###
-#det5_model_path = 'Salesforce/codet5-base-multi-sum' #E:\\pythonproject\\Pretrain\\codet5-base-multi-sum
-#trans_model_path = 'E:\\pythonproject\\Pretrain\\codeTrans'   ###
+#project\\Pretrain\\codeTrans'   ###
 #text_model_path = 'E:\\pythonproject\\Pretrain\\cotext-2-cc'
 #graph_model_path = 'E:\\pythonproject\\Pretrain\\graphcodebert-base'
 #plbart_model_path = 'E:\\pythonproject\\Pretrain\\plbart-base'
@@ -117,11 +105,13 @@ def get_embedding_codet5plus(text): # 是
     # 将embedding转成list格式并返回
     return embedding.detach().cpu().numpy().tolist()
 '''
-device = torch.device("cpu")
-
+# 修改 device 为 GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_embedding_codet5(text, det5_tokenizer, det5_model):
+    # 将模型移动到 GPU
+    det5_model.to(device)
     tokens = det5_tokenizer.tokenize(text+"</s>")
     tokens_ids = det5_tokenizer.convert_tokens_to_ids(tokens)
     embedding = []
@@ -129,14 +119,22 @@ def get_embedding_codet5(text, det5_tokenizer, det5_model):
     if len(tokens) > 512:
         print('codet5',len(tokens), text) # 是
     while (index + 512) < len(tokens_ids):
-        model_input = torch.tensor(tokens_ids[index:(index + 512)]).to(device)
+        model_input = torch.tensor(tokens_ids[index:(index + 512)], device=device)#.to(device)
+        #attention_mask = torch.ones(1, 512, device=device)  # 直接在 GPU 上创建
+        #output = det5_model.encoder(input_ids=model_input[None, :], attention_mask=attention_mask, return_dict=True)
         output = det5_model.encoder(input_ids=model_input[None, :], attention_mask=torch.ones(1, 512).to(device), return_dict=True)
-        embedding.extend(output.last_hidden_state[0].detach().cpu().numpy().tolist())
+        hidden_state = output.last_hidden_state.detach().cpu()  # 将整个 hidden_state 移动到 CPU
+        embedding.extend(hidden_state[0].numpy().tolist())  # 提取需要的部分并转换为列表
+        #embedding.extend(output.last_hidden_state[0].detach().gpu().numpy().tolist())
         index += 512
     if index < len(tokens_ids):
         model_input = torch.tensor(tokens_ids[index:len(tokens_ids)]).to(device)
+        #attention_mask = torch.ones(1, 512, device=device)  # 直接在 GPU 上创建
+        #output = det5_model.encoder(input_ids=model_input[None, :], attention_mask=attention_mask, return_dict=True)
         output = det5_model.encoder(input_ids=model_input[None, :], attention_mask=torch.ones(1, len(tokens_ids) - index).to(device), return_dict=True)
-        embedding.extend(output.last_hidden_state[0].detach().cpu().numpy().tolist())
+        #embedding.extend(output.last_hidden_state[0].detach().gpu().numpy().tolist())#
+        hidden_state = output.last_hidden_state.detach().cpu()  # 将整个 hidden_state 移动到 CPU
+        embedding.extend(hidden_state[0].numpy().tolist())  # 提取需要的部分并转换为列表
     embedding = np.array(embedding).reshape((-1, 768)).mean(axis=0).tolist()
     return embedding
 '''
@@ -235,6 +233,8 @@ def write_embedding(file_path, emb):
 
 def solve1(path, move_file, moveto_file, det5_tokenizer, det5_model):
     # 读取graph_node.csv所有行数据
+    # 将模型移动到 GPU
+    det5_model.to(device)
     #print(path)
     if not os.path.exists(path + '\\embedding'):
         os.mkdir(path + '\\embedding')
