@@ -1,11 +1,9 @@
 import os
-#from random import random
-#import sys
 import torch
 #import torch.nn as nn
 #import torch.optim as optimpip
 from torch.utils.data import DataLoader
-
+from dataclasses import dataclass
 # Assuming your HGCN models is defined in a file called model.py
 from models import GCN_HGNN, GraphSAGE_HGNNPLUS, GraphSAGE_HGNN
 
@@ -19,19 +17,28 @@ from dataset_new import get_dataset
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define the training function
-
+# 修改 device 为 GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Define the testing function
 def test_epoch(model, dataloader, device):
     model.eval()
-
+    # 将模型移动到 GPU
+    model.to(device)
+    i = 1
     with torch.no_grad():
+        print("--------------------------------------------------------------------------------")
+        print(i)
+        i = i+1
         for data in dataloader:
             g, hg, features = data[0], data[1], data[2]
             g, hg, features = g.to(device), hg.to(device), features.to(device)
             output = model(features, g, hg)
             predictions = output.item()
             #predictions = (output > 0.5).float()
-            while predictions < 1.0 :
+            if predictions == 0 :
+                return predictions
+
+            while predictions < 1.0:
                 predictions *= 10.0
             if predictions > 1.0 :
                 predictions /= 10.0
@@ -65,16 +72,18 @@ def main(paths, emb, md):
         state_dict = torch.load("models/_" + model_name + "_" + emb_type + "-" + str(h_channels) + "-" + str(out_channels) + ".pth")
         model.load_state_dict(state_dict)
 
-    device = torch.device("cpu")
+    # 将模型移动到 GPU
+    model.to(device)
+
     test_set = get_dataset(paths, emb_type)
     # Convert datasets to DataLoader
     # 图的大小不一，导致无法设置batch_size，否则会runtime error
     test_loader = DataLoader(test_set, batch_size=None, shuffle=False)
 
-    model.to(device)
+    # model.to(device)
     # result 为0则是不推荐move，为1推荐Move
     result = test_epoch(model, test_loader, device)
-
+    print("result finish")
     return result
 
 if __name__ == "__main__":
