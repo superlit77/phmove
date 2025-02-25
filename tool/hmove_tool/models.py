@@ -29,6 +29,10 @@ class GCN_HGNNConv(nn.Module):
         X = self.theta(X)
         X_g = g.smoothing_with_GCN(X)  # gcn
         X_hg = hg.smoothing_with_HGNN(X)  # hgnn
+        # 确保 X_g 和 X_hg 都在 GPU 上
+        X_g = X_g.to(X.device)
+        X_hg = X_hg.to(X.device)
+
         X1 = (X_g + X_hg) / 2
         X_ = self.drop(self.act(X1))
         return X_
@@ -91,6 +95,10 @@ class GraphSAGE_HGNNPLUSConv(nn.Module):
         X_g = torch.cat([X, X_nbr], dim=1)
         Y = hg.v2e(X_g, aggr="mean")
         X_hg = hg.e2v(Y, aggr="mean")
+
+        # 确保 X_hg 在 GPU 上
+        X_hg = X_hg.to(X.device)
+
         X1 = self.theta(X_hg)
         X_ = self.drop(self.act(X1))
         return X_
@@ -149,6 +157,10 @@ class GCN_HGCNConv(nn.Module):
             hg, X, False #, device=X.device
         )
         X1 = g1.smoothing_with_GCN(X_g)
+
+        # 确保 X1 在 GPU 上
+        X1 = X1.to(X.device)
+
         #X_end = (X_g + X1) / 2
         X_ = self.drop(self.act(X1))
         return X_
@@ -204,6 +216,10 @@ class GCN_HGNNPLUSConv(nn.Module):
         X_g = torch.cat([X, X_1], dim=1)
         Y = hg.v2e(X_g, aggr="mean")
         X_hg = hg.e2v(Y, aggr="mean")
+
+        # 确保 X_hg 在 GPU 上
+        X_hg = X_hg.to(X.device)
+
         X1 = self.theta(X_hg)
         X_ = self.drop(self.act(X1))
         return X_
@@ -260,6 +276,10 @@ class GraphSAGE_HGNNConv(nn.Module):
         X_nbr = g.v2v(X, aggr="mean")
         X_g = torch.cat([X, X_nbr], dim=1)
         X_hg = hg.smoothing_with_HGNN(X_g)  # hgnn
+
+        # 确保 X_hg 在 GPU 上
+        X_hg = X_hg.to(X.device)
+
         X1 = self.theta(X_hg)
         X_ = self.drop(self.act(X1))
         return X_
@@ -318,6 +338,9 @@ class GraphSAGE_HGCNConv(nn.Module):
             hg, X_g, False #, device=X.device
         )
         X2 = g1.smoothing_with_GCN(X_g)
+        # 确保 X_hg 在 GPU 上
+        X2 = X2.to(X.device)
+
         X1 = self.theta(X2)
         X_ = self.drop(self.act(X1))
         return X_
@@ -382,6 +405,11 @@ class GAT_HGNNConv(nn.Module):
         e_atten_score = self.atten_dropout(self.atten_act(e_atten_score).squeeze())
         X_g = g.v2v(X, aggr="softmax_then_sum", e_weight=e_atten_score)
         X_hg = hg.smoothing_with_HGNN(X)  # hgnn
+
+        # 确保 X_g 和 X_hg 都在 GPU 上
+        X_g = X_g.to(X.device)
+        X_hg = X_hg.to(X.device)
+
         X1 = (X_g + X_hg) / 2
         X_ = self.act(X1)
         return X_
@@ -451,6 +479,11 @@ class GAT_HGNNPLUSConv(nn.Module):
         X_g = g.v2v(X, aggr="softmax_then_sum", e_weight=e_atten_score)
         Y = hg.v2e(X, aggr="mean")
         X_hg = hg.e2v(Y, aggr="mean")
+
+        # 确保 X_g 和 X_hg 都在 GPU 上
+        X_g = X_g.to(X.device)
+        X_hg = X_hg.to(X.device)
+
         X1 = (X_g + X_hg) / 2
         X_ = self.act(X1)
         return X_
