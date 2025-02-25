@@ -24,11 +24,7 @@ def test_epoch(model, dataloader, device):
     model.eval()
     # 将模型移动到 GPU
     model.to(device)
-    i = 1
     with torch.no_grad():
-        print("--------------------------------------------------------------------------------")
-        print(i)
-        i = i+1
         for data in dataloader:
             g, hg, features = data[0], data[1], data[2]
             g, hg, features = g.to(device), hg.to(device), features.to(device)
@@ -83,7 +79,6 @@ def main(paths, emb, md):
     # model.to(device)
     # result 为0则是不推荐move，为1推荐Move
     result = test_epoch(model, test_loader, device)
-    print("result finish")
     return result
 
 if __name__ == "__main__":
