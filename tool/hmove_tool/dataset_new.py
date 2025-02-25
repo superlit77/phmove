@@ -131,6 +131,9 @@ def solve(folder_name, emb_type):
     g = create_digraph(folder_name)
     hg = create_hypergraph(folder_name)
     features = get_features(emb_path, emb_type)
+    # 修改 device 为 GPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    features = features.to(device)
     test_set.append([g, hg, features])
 
 # emb 是哪种预训练模型
