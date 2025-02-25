@@ -1,24 +1,17 @@
 import argparse
 from transformers import RobertaTokenizer, T5ForConditionalGeneration
 import numpy as np
-#import sys
-#import time
 import subprocess
 import os
-#from transformers import AutoTokenizer, AutoModel, AutoModelForSeq2SeqLM
-#import pandas as pd
 import torch
+import time
 from sklearn import preprocessing
-#from sklearn.decomposition import PCA
-#import matplotlib.pyplot as plt
-#import statsmodels.api as sm
-#import tkinter as tk
-#import json
-import sys
 from process_new import solve
 from train_new import main
 from Embedding import solve1
-import train_new
+
+# 修改 device 为 GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def run_jar(jar_path, file_path):
@@ -33,7 +26,6 @@ def run_jar(jar_path, file_path):
     return result.returncode
 
 def execute_code_hmove(args):
-
     folder_name = solve(args.move_file, args.start_line, args.moveto_file)
     current_directory = os.getcwd()
     print('Intermediate files will be stored in ' + current_directory + '\\' + folder_name)
@@ -51,11 +43,15 @@ def execute_code_hmove(args):
     tokenizer = RobertaTokenizer.from_pretrained(
         'Salesforce/codet5-base-multi-sum')  # Salesforce/codet5-base-multi-sum
     model = T5ForConditionalGeneration.from_pretrained('Salesforce/codet5-base-multi-sum')
-    device = torch.device("cpu")
+    # 将模型移动到 GPU
     model.to(device)
     print('Finish Loading Pretrain Model ! !')
     print('----------------------------------------------------------------------------')
+    start = time.time()
     solve1(folder_name, args.move_file, args.moveto_file, tokenizer, model)
+    end = time.time()
+    execution_time = end - start
+    print(f"提取实体用时: {execution_time:.6f} 秒")
 
     # 开启子进程，执行依赖提取工具ArchDiff，生成relation.csv
     # 调用函数运行JAR包
@@ -79,17 +75,6 @@ def execute_code_hmove(args):
         print('The method starting at line ' + str(args.start_line) + ' in the source class is not recommended to move to the target class.')
     else:
         print('We recommend to move the method starting at line ' + str(args.start_line) + ' in the source class to the target class.')
-
-
-#def print_tips():
- #   print("-h\t\t\t\t\t\t\t\t\t\t\tShow options")
-  #  print("-a <project-folder>\t\t\t\tDetect all feature envy methods for <project-folder>")
-
-#def check_command():
- #   if not os.path.exists(sys.argv[2]):
-  #      print("Please type the correct folder.")
-   #     print("Type `python feTruth.py -h` to show usage.")
-    #    exit()
 
 def execute_code_feTruth(param):
     # 定义可执行程序和目录路径
